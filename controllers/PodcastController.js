@@ -22,7 +22,7 @@ const getOneEpisode = async (req, res) => {
     where: { title },
     attributes: ['title', 'link'],
     raw: true,
-  })
+  }).then((data) => [data])
 
   if (!episode) {
     return res.status(404).json({ error: 'Title does not exist!' })
