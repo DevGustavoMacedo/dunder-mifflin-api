@@ -1,14 +1,20 @@
-const Aliases = require('../models/Aliases')
+const Nicknames = require('../models/Nicknames')
 const Characters = require('../models/Characters')
 const Quotes = require('../models/Quotes')
 const Seasons = require('../models/Seasons')
 
 const formatArray = (characters) =>
   characters.map((item) => {
+    delete item.id
+
     const character = {}
 
     Object.entries(item).forEach((entry) => {
       const [key, value] = entry
+
+      if (key === 'id') {
+        return
+      }
 
       if (Array.isArray(value)) {
         character[key] = value.map((val) => Object.values(val.dataValues)[0])
@@ -26,14 +32,14 @@ const arrayToString = (arr) => (Array.isArray(arr) ? arr[0] : arr)
 const paramFindDontExists = (path, find) => (path !== '/all' && !find ? true : false)
 
 const queriesExists = (path, queries) => {
-  if(path !== '/all' && queries.length > 1) {
+  if (path !== '/all' && queries.length > 1) {
     return true
   }
 
-  if(path === '/all' && queries.length > 0) {
+  if (path === '/all' && queries.length > 0) {
     return true
   }
-  
+
   return false
 }
 
@@ -43,29 +49,20 @@ const queriesFilter = (attributesList, queries) =>
 const wrongParams = (path, attributes, multAttributes) =>
   attributes.length === 0 && multAttributes.length === 0 && path !== '/one' ? true : false
 
-const formatToModels = (multAttributes) =>
-  multAttributes.map((item) => {
-    if (item === 'seasons') {
-      return {
-        model: Seasons,
-        attributes: ['season'],
-      }
-    }
+const formatToModels = (multAttributes, path) => {
 
-    if (item === 'aliases') {
-      return {
-        model: Aliases,
-        attributes: ['alias'],
-      }
-    }
+  const formattedAttributes = multAttributes.map((item) => {
+    const model = item === 'seasons' ? Seasons : item === 'nicknames' ? Nicknames : Quotes
 
-    if (item === 'quotes') {
-      return {
-        model: Quotes,
-        attributes: ['quote'],
-      }
+    return {
+      model,
+      separate: true,
+      attributes: [item.substring(0, item.length - 1)],
     }
   })
+
+  return formattedAttributes
+}
 
 const dataDontExists = async (find) => {
   const [key, value] = Object.entries(find)[0]
@@ -77,7 +74,7 @@ const dataDontExists = async (find) => {
     where: { [key]: value },
   })
 
-  return search ? false : true 
+  return search ? false : true
 }
 
 module.exports = {
@@ -88,5 +85,5 @@ module.exports = {
   queriesFilter,
   wrongParams,
   formatToModels,
-  dataDontExists
+  dataDontExists,
 }
