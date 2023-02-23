@@ -5,7 +5,7 @@ const Characters = require('./Characters')
 
 const Seasons = db.define('seasons', {
   season: {
-    type: DataTypes.INTEGER, 
+    type: DataTypes.STRING, 
     allowNull: false,
     required: true
   }
