@@ -3,7 +3,7 @@ const Characters = require('../models/Characters')
 const Quotes = require('../models/Quotes')
 const Seasons = require('../models/Seasons')
 
-const formatArray = (characters) =>
+const formatArrayDB = (characters) =>
   characters.map((item) => {
     delete item.id
 
@@ -11,10 +11,6 @@ const formatArray = (characters) =>
 
     Object.entries(item).forEach((entry) => {
       const [key, value] = entry
-
-      if (key === 'id') {
-        return
-      }
 
       if (Array.isArray(value)) {
         character[key] = value.map((val) => Object.values(val.dataValues)[0])
@@ -29,28 +25,10 @@ const formatArray = (characters) =>
 
 const arrayToString = (arr) => (Array.isArray(arr) ? arr[0] : arr)
 
-const paramFindDontExists = (path, find) => (path !== '/all' && !find ? true : false)
-
-const queriesExists = (path, queries) => {
-  if (path !== '/all' && queries.length > 1) {
-    return true
-  }
-
-  if (path === '/all' && queries.length > 0) {
-    return true
-  }
-
-  return false
-}
-
 const queriesFilter = (attributesList, queries) =>
   queries.filter((key) => attributesList.includes(key))
 
-const wrongParams = (path, attributes, multAttributes) =>
-  attributes.length === 0 && multAttributes.length === 0 && path !== '/one' ? true : false
-
 const formatToModels = (multAttributes, path) => {
-
   const formattedAttributes = multAttributes.map((item) => {
     const model = item === 'seasons' ? Seasons : item === 'nicknames' ? Nicknames : Quotes
 
@@ -64,26 +42,34 @@ const formatToModels = (multAttributes, path) => {
   return formattedAttributes
 }
 
-const dataDontExists = async (find) => {
-  const [key, value] = Object.entries(find)[0]
+const charactersData = async (query, key) => {
+  const { attributes, multAttributes } = query
+  let { find } = query
 
-  const Model = key === 'season' ? Seasons : Characters
+  if (key === 'id') {
+    find = await Seasons.findAll({
+      where: { season: find },
+      attributes: ['characterId'],
+      raw: true,
+    }).then((data) => data.map((item) => item.characterId))
+  }
 
-  const search = await Model.findOne({
-    attributes: [key],
-    where: { [key]: value },
+  const where = key ? { [key]: find } : {}
+
+  const data = await Characters.findAll({
+    attributes,
+    where,
+    include: multAttributes,
   })
+    .then((data) => data.map((item) => item.dataValues))
+    .then((characters) => formatArrayDB(characters))
 
-  return search ? false : true
+  return data
 }
 
 module.exports = {
-  formatArray,
   arrayToString,
-  paramFindDontExists,
-  queriesExists,
   queriesFilter,
-  wrongParams,
   formatToModels,
-  dataDontExists,
+  charactersData,
 }
