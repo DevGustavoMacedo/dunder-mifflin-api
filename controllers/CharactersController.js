@@ -1,77 +1,49 @@
-// models
-const Characters = require('../models/Characters')
-const Seasons = require('../models/Seasons')
-
 // helpers
-const { formatArray } = require('../helpers')
+const { charactersData } = require('../helpers/formatters')
 
-const getAllCharacters = async (req, res) => {
-  const { attributes, multAttributes } = req.query
-
-  const charactersData = await Characters.findAll({
-    attributes,
-    include: multAttributes,
-  })
-    .then((data) => data.map((item) => item.dataValues))
-    .then((characters) => formatArray(characters))
-
-  return res.status(200).json(charactersData)
-}
+const getAllCharacters = async (req, res) => 
+  res.status(200).json(await charactersData(req.query))
 
 const getOneCharacter = async (req, res) => {
-  const { find, attributes, multAttributes } = req.query
+  req.query.find = req.query.find.replace(/([a-z])([A-Z])/, '$1 $2')
 
-  const charactersData = await Characters.findOne({
-    attributes,
-    where: { name: find },
-    include: multAttributes,
-  })
-    .then((data) => [data.dataValues])
-    .then((characters) => formatArray(characters))
+  const data = await charactersData(req.query, 'name')
 
-  return res.status(200).json(charactersData)
-}
-
-const getCharactersSeason = async (req, res) => {
-  const { find, attributes, multAttributes } = req.query
-
-  const data = await Seasons.findAll({
-    where: { season: find },
-    attributes: ['season'],
-    include: [{ model: Characters, attributes, include: multAttributes }],
-  })
-    .then((data) => data.map((item) => item.character.dataValues))
-    .then((characters) => formatArray(characters))
+  if(data.length === 0 ) {
+    return res.status(404).json({ error: 'Name does not exist!' })
+  }
 
   return res.status(200).json(data)
 }
 
 const getCharactersBrand = async (req, res) => {
-  const { find, attributes, multAttributes } = req.query
+  const data = await charactersData(req.query, 'brand')
 
-  const charactersData = await Characters.findAll({
-    attributes,
-    where: { brand: find },
-    include: multAttributes,
-  })
-    .then((data) => data.map((item) => item.dataValues))
-    .then((characters) => formatArray(characters))
+  if(data.length === 0 ) {
+    return res.status(404).json({ error: 'Brand does not exist!' })
+  }
 
-  return res.status(200).json(charactersData)
+  return res.status(200).json(data)
 }
 
 const getCharactersStaff = async (req, res) => {
-  const { find, attributes, multAttributes } = req.query
+  const data = await charactersData(req.query, 'staff')
 
-  const charactersData = await Characters.findAll({
-    attributes,
-    where: { staff: find },
-    include: multAttributes,
-  })
-    .then((data) => data.map((item) => item.dataValues))
-    .then((characters) => formatArray(characters))
+  if(data.length === 0 ) {
+    return res.status(404).json({ error: 'Staff does not exist!' })
+  }
 
-  return res.status(200).json(charactersData)
+  return res.status(200).json(data)
+}
+
+const getCharactersSeason = async (req, res) => {
+  const data = await charactersData(req.query, 'id')
+
+  if(data.length === 0 ) {
+    return res.status(404).json({ error: 'Season does not exist!' })
+  }
+
+  return res.status(200).json(data)
 }
 
 module.exports = {

@@ -12,17 +12,17 @@ const getAllEpisodes = async (req, res) => {
 const getOneEpisode = async (req, res) => {
   const { find, attributes } = req.query
 
-  const episode = await Podcast.findOne({
-    where: { chapter: find },
+  const episodeData = await Podcast.findOne({
+    where: { episode: find },
     attributes,
     raw: true,
   }).then((data) => data ? [data] : [])
 
-  if (episode.length === 0) {
-    return res.status(404).json({ error: 'Chapter does not exist!' })
+  if (episodeData.length === 0) {
+    return res.status(404).json({ error: 'Episode does not exist!' })
   }
 
-  return res.status(200).json(episode)
+  return res.status(200).json(episodeData)
 }
 
 module.exports = {
