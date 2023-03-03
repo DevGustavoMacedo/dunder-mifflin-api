@@ -12,6 +12,7 @@ const sequelize = new Sequelize(
   `${dbDialect}://${dbUser}:${dbPassword}@${dbHost}/${dbName}?ssl=true`,
   {
     dialect: dbDialect,
+    dialectModule: require('pg'),
   }
 )
 
