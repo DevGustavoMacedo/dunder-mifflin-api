@@ -4,9 +4,6 @@ if (!process.env.DB_URI) {
   throw new Error('Missing env variable DB_URI')
 }
 
-const dbUri = process.env.DB_URI
-const dbName = process.env.DB_NAME
-
 let cachedClient: MongoClient
 let cachedDb: Db
 
@@ -18,9 +15,9 @@ export async function connectToDatabase() {
     return { client: cachedClient, db: cachedDb }
   }
 
-  client = await MongoClient.connect(dbUri, {})
+  client = await MongoClient.connect(process.env.DB_URI, {})
 
-  db = client.db(dbName)
+  db = client.db(process.env.DB_NAME)
 
   cachedClient = client
   cachedDb = db
