@@ -1,8 +1,7 @@
 // podcast
 import podcast from '@/db/podcast'
 
-// utils
-import formatters from '@/utils/formatters'
+// rateLimit
 import rateLimit from '@/utils/rateLimit'
 
 // types
@@ -15,9 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(429).json({ error: 'Requests limit exceeded' })
   }
 
-  const projection = formatters.attributesMongo(req.query)
-
-  const data = await podcast({}, projection)
+  const data = await podcast({}, req.query)
 
   if (data.length === 0) {
     return res.status(404).json({ error: 'Data not found' })

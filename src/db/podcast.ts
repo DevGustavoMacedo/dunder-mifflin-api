@@ -4,8 +4,13 @@ import { connectToDatabase } from '@/db/conn'
 // types
 import TPodcast from '@/types/podcast'
 
-const podcast =  async (find: object, projection: object) => {
+// formatters
+import { attributesMongo } from '@/utils/formatters'
+
+const podcast =  async (find: object, attributes: object) => {
   const { db } = await connectToDatabase()
+
+  const projection = attributesMongo(attributes)
 
   const data: TPodcast[] = await db
     .collection<TPodcast>('podcast')

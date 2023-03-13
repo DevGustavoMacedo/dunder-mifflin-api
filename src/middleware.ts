@@ -7,10 +7,10 @@ import { Props as typeCharacters } from '@/types/characters'
 import { Props as typePodcast  } from '@/types/podcast'
 
 // formatters
-import formatters from '@/utils/formatters'
+import { cleanParams } from '@/utils/formatters'
 
 // checkers
-import checkers from '@/utils/checkers'
+import { isFindEmpty, isPathAll } from '@/utils/checkers'
 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl
@@ -19,9 +19,14 @@ export function middleware(req: NextRequest) {
   let attributes: string[] 
   const find = params.get('find') || ''
 
-  if (!checkers.isPathAll(path)) {
-    if (checkers.isFindEmpty(find)) {
-      return formatters.error
+  if (!isPathAll(path)) {
+    if (isFindEmpty(find)) {
+      return new NextResponse(JSON.stringify({ error: 'Fill parameter {find}' }), {
+        status: 422,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
     }
   }
 
@@ -31,16 +36,12 @@ export function middleware(req: NextRequest) {
     attributes = Object.keys(typePodcast)
   }
 
-  formatters.cleanParams(params, attributes)
-
-  if (checkers.isObjectEmpty(params)) {
-    attributes.forEach((item) => params.set(item, ''))
+  if (!isPathAll(path)) {
+    attributes.push(find)
   }
-
-  if (!checkers.isPathAll(path)) {
-    params.set('find', find)
-  }
-
+  
+  cleanParams(params, attributes)
+  
   return NextResponse.rewrite(url)
 }
 

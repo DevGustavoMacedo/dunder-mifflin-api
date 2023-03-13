@@ -2,7 +2,6 @@
 import characters from '@/db/characters'
 
 // utils
-import formatters from '@/utils/formatters'
 import rateLimit from '@/utils/rateLimit'
 
 // types
@@ -15,11 +14,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(429).json({ error: 'Requests limit exceeded' })
   }
 
-  const projection = formatters.attributesMongo(req.query)
-  
   const find = req.query.find?.toString().replace(/([a-z])([A-Z])/, '$1 $2')
 
-  const data = await characters({ name: find }, projection)
+  const data = await characters({ name: find }, req.query)
 
   if (data.length === 0) {
     return res.status(404).json({ error: 'Name not found' })

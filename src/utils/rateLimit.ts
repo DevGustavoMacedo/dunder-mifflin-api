@@ -12,7 +12,7 @@ const rateLimit = {
       const token = 'CACHE_TOKEN'
 
       const tokenCount = (rateLimit.tokenCache.get(token) as number[]) || [0]
-      
+
       if (tokenCount[0] === 0) {
         rateLimit.tokenCache.set(token, tokenCount)
       }
@@ -22,6 +22,11 @@ const rateLimit = {
       const isRateLimited = currentUsage >= limit
       res.setHeader('X-RateLimit-Limit', limit)
       res.setHeader('X-RateLimit-Remaining', isRateLimited ? 0 : limit - currentUsage)
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+      )
 
       return isRateLimited ? reject() : resolve()
     }),
