@@ -3,6 +3,7 @@ import characters from '@/db/characters'
 
 // utils
 import rateLimit from '@/utils/rateLimit'
+import { arrToStr } from '@/utils/formatters'
 
 // types
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(429).json({ error: 'Requests limit exceeded' })
   }
 
-  const find = req.query.find?.toString().replace(/([a-z])([A-Z])/, '$1 $2')
+  const find = arrToStr(req.query.find).replace(/([a-z])([A-Z])/g, '$1 $2')
 
   const data = await characters({ name: find }, req.query)
 

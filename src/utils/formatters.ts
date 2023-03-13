@@ -24,4 +24,16 @@ const attributesMongo = (query: object) => {
   return obj
 }
 
-export { cleanParams, attributesMongo }
+const arrToStr = (find: string[] | string | undefined ): string => {
+  if(find) {
+    if(Array.isArray(find)) {
+      return find[0] 
+    } else {
+      return find
+    }
+  }
+
+  return ''
+}
+
+export { cleanParams, attributesMongo, arrToStr }

@@ -1,8 +1,9 @@
 // characters
 import characters from '@/db/characters'
 
-// rateLimit
+// utils
 import rateLimit from '@/utils/rateLimit'
+import { arrToStr } from '@/utils/formatters'
 
 // types
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -14,7 +15,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(429).json({ error: 'Requests limit exceeded' })
   }
 
-  const data = await characters({ brand: req.query.find }, req.query)
+  const find = arrToStr(req.query.find)
+
+  const data = await characters({ brand: find }, req.query)
 
   if (data.length === 0) {
     return res.status(404).json({ error: 'Brand not found' })

@@ -37,7 +37,7 @@ export function middleware(req: NextRequest) {
   }
 
   if (!isPathAll(path)) {
-    attributes.push(find)
+    attributes.push('find')
   }
   
   cleanParams(params, attributes)
