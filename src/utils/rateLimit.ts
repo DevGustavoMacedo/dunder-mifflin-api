@@ -8,7 +8,7 @@ const rateLimit = {
   }),
   check: (res: NextApiResponse) =>
     new Promise<void>((resolve, reject) => {
-      const limit = 6 // requests limit
+      const limit = 60 // requests limit
       const token = 'CACHE_TOKEN'
 
       const tokenCount = (rateLimit.tokenCache.get(token) as number[]) || [0]
